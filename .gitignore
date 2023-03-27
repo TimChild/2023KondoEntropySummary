@@ -4,3 +4,4 @@ DirectlyCopiedCD4/
 .ipynb_checkpoints/
 *.pyc
 file_system_store/
+.idea/
