@@ -1,3 +1,9 @@
+"""
+2023-03-28 -- Tim: I don't think it's worth moving this into dat_analysis as it is... I think to make it more
+general, this should be done as subclass of GeneralFitter. Some things from here are probably worth using as inspiration
+ for a future function.
+ Maybe there should be a subclass of GeneralFitter made for repeat measurements (i.e. for many 1D fits to 2D data).
+"""
 from lmfit.models import LorentzianModel, ConstantModel
 from dat_analysis.analysis_tools.general_fitting import FitInfo
 from new_util import Data, DatHDF
@@ -6,7 +12,7 @@ import numpy as np
 import lmfit as lm
 import logging 
 
-import dat_analysis.useful_functions as U
+from dat_analysis.core_util import get_data_index
 from new_util import are_params_equal
 from dat_analysis.plotting.plotly.util import default_fig, heatmap 
 
@@ -28,7 +34,7 @@ class PeakFitting:
         if self.data.data.ndim != 2:
             logging.warning(f'Peak Fitting expects 2D data, attempting conversion')
             if self.data.data.ndim != 1:
-                raise ValueError(f"Peak fitting got data with shape {self.data.data.shape}. Expectes 2D")
+                raise ValueError(f"Peak fitting got data with shape {self.data.data.shape}. Expected 2D")
             self.data = self.data.copy()
             self.data.data = np.atleast_2d(self.data.data)
             self.data.y = np.arange(self.data.data.shape[0])
@@ -46,6 +52,7 @@ class PeakFitting:
             if peak_width
             else (np.nanmax(self.data.x) - np.nanmin(self.data.x)) / 5
         )
+
         # Caching variables
         self._last_params = None
         self._fits = None
@@ -69,8 +76,8 @@ class PeakFitting:
         Plot the 2D data as recorded (i.e. with repeats)
         """
         # Make figure
-        fig = default_figure()
-        fig.add_trace(heatmap(x=data.x, y=data.y, data=data.data))
+        fig = go.Figure()
+        fig.add_trace(heatmap(x=self.data.x, y=self.data.y, data=self.data.data))
         fig.update_layout(title=f"Peak Fitting Data 2D")
         return fig
 
@@ -93,7 +100,7 @@ class PeakFitting:
 
         x = self.data.x
         data = self.data.data
-        fit_indexes = U.get_data_index(
+        fit_indexes = get_data_index(
             x, [self.peak_loc - self.peak_width, self.peak_loc + self.peak_width]
         )
         x_fit = x[fit_indexes[0] : fit_indexes[1]]
@@ -200,7 +207,7 @@ class PeakFitting:
             x = self.data.x
             data = self.data.data
 
-            indexes = U.get_data_index(
+            indexes = get_data_index(
                 x, [self.peak_loc - self.peak_width, self.peak_loc + self.peak_width]
             )
             x = x[indexes[0] : indexes[1]]

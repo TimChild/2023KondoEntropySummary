@@ -1,3 +1,8 @@
+"""
+2023-03-28 -- Moved all generally useful functions to dat_analysis (and imported here for backwards
+compatability). The rest of the functions left in here are not general enough or require significant re-writing to be
+included in dat_analysis.
+"""
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
@@ -20,6 +25,7 @@ from IPython.display import display, Image
 import base64
 import logging
 import socket
+from typing import Any
 from tqdm.auto import tqdm
 
 from dat_analysis.characters import PM 
@@ -30,20 +36,14 @@ from dat_analysis.dat.dat_hdf import DatHDF
 
 
 from dat_analysis.analysis_tools.general import ColumnDescriptor, dats_to_df, get_unique_df_vals, summarize_df
-from dat_analysis.plotting.plotly.util import default_config, default_layout, default_fig, apply_default_layout, heatmap, error_fill, figures_to_subplots  # Initially made here, in future these should be imported directly from dat_analysis.plotting.plotly.util
+from dat_analysis.plotting.plotly.util import default_config, default_layout, default_fig, apply_default_layout, heatmap, error_fill, figures_to_subplots, get_colors  # Initially made here, in future these should be imported directly from dat_analysis.plotting.plotly.util
 
 from new_util import make_animated, Data, PlottingInfo, fig_waterfall, clean_ct, are_params_equal
-
-def get_colors(values, low=0, high=1, colorscale="bluered"):
-    values = np.asanyarray(values).flatten()
-    color_val = (values - low) / (high - low)
-    colors = pc.sample_colorscale(colorscale, color_val)
-    if values.size == 1:
-        return colors[0]
-    return colors
+from dat_analysis.dash.util import get_unused_port as find_open_port
+from dat_analysis.useful_functions import mm
 
 
-##### Transition class import #####
+##### Transition class import #####
 from dat_analysis.analysis_tools.transition import (
     CenteredAveragingProcess,
     TransitionFitProcess,
@@ -61,8 +61,6 @@ pio.renderers.default = 'plotly_mimetype+notebook+pdf'  # Allows working in jupy
 fig_dir = 'figures/'
 os.makedirs(fig_dir, exist_ok=True)
 
-# JupyterDash.infer_jupyter_proxy_config()  # Allows JupyterDash to be run even when remotely connected (needs jupyter-server-proxy installed)
-
 
 def get_dat(datnum, raw=False, overwrite=False):
     return dat_analysis.get_dat(datnum, host_name='qdev-xld', user_name='Tim', experiment_name='202211_KondoEntropy', raw=raw, overwrite=overwrite)
@@ -74,11 +72,10 @@ def get_dats(datnums):
 
 def get_dats_that_meet_conditions(
     datnums: Iterable[int],
-    dat_checking_func: Callable[DatHDF, bool] = None,
+    dat_checking_func: Callable[[DatHDF], bool] = None,
     verbose=True,
 ) -> tuple[DatHDF]:
     """Go through list of datnums and collect the dats that meet the criteria of dat_checking_func (if provided)"""
-
     def log(message, level=logging.INFO):
         if verbose:
             logging.log(level, message)
@@ -94,37 +91,6 @@ def get_dats_that_meet_conditions(
         except Exception as e:
             log(f"Dat{num} failed and raised {e}", level=logging.WARNING)
     return tuple(good_dats)
-
-
-def find_open_port():
-    """Find an open socket/port E.g. for running Dash app"""
-    s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("", 0))
-    _, port = s.getsockname()
-    s.close()
-
-    return port
-
-def mm(graph):
-    """Make a mermaid graph
-    Examples:
-        mm('''
-            graph LR;
-                A--> B & C & D;
-                B--> A & E;
-                C--> A & E;
-                D--> A & E;
-                E--> B & C & D;
-            ''')
-    """
-    graphbytes = graph.encode("ascii")
-    base64_bytes = base64.b64encode(graphbytes)
-    base64_string = base64_bytes.decode("ascii")
-    image = Image(url="https://mermaid.ink/img/" + base64_string)
-    return image
-    
-
 
 
 class Diamonds:
@@ -238,7 +204,6 @@ class Diamonds:
         return Data(data=data, x=x, y=y)
     
 
-
     def differentiate_data(
         self,
     ):
@@ -246,78 +211,6 @@ class Diamonds:
         diff = np.diff(smoothed_data.data, axis=1)
         x = U.get_matching_x(smoothed_data.x, diff)
         return Data(data=diff, x=x, y=smoothed_data.y)
-
-
-    
-
-### Added to Logs
-# @dataclass(frozen=True)
-# class AxisGates:
-#     dacs: tuple[int]
-#     channels: tuple[str]
-#     starts: tuple[float]
-#     fins: tuple[float]
-#     numpts: int
-
-#     def to_df(self) -> pd.DataFrame:
-#         df = pd.DataFrame(
-#             [self.starts, self.fins, self.dacs],
-#             columns=self.channels,
-#             index=["starts", "fins", "dac"],
-#         )
-#         return df
-
-
-# @dataclass(frozen=True)
-# class SweepGates:
-#     x: AxisGates = None
-#     y: AxisGates = None
-
-
-# def get_sweepgates(dat):
-#     scan_vars = dat.Logs.scan_vars
-#     axis_gates = {}
-#     for axis in ["x", "y"]:
-#         starts = scan_vars.get(f"start{axis}s")
-#         fins = scan_vars.get(f"fin{axis}s")
-#         if starts == "null" or fins == "null":
-#             continue
-#         starts, fins = [
-#             tuple([float(v) for v in vals])
-#             for vals in [starts.split(","), fins.split(",")]
-#         ]
-#         channels = scan_vars.get(f"channels{axis}")
-#         channels = tuple([int(v) for v in channels.split(",")])
-#         numpts = scan_vars.get(f"numpts{axis}")
-#         channel_names = scan_vars.get(f"{axis}_label")
-#         if channel_names.endswith(" (mV)"):
-#             channel_names = channel_names[:-5]
-#         else:
-#             channel_names = ",".join([f"DAC{num}" for num in channels])
-#         channel_names = tuple([name.strip() for name in channel_names.split(",")])
-#         axis_gates[axis] = AxisGates(channels, channel_names, starts, fins, numpts)
-#     return SweepGates(**axis_gates)
-
-
-# def calculate_axis_gate_vals_from_val(
-#     axis_gates, gate_name, gate_val
-# ) -> dict[str, float]:
-#     index = axis_gates.channels.index(gate_name)
-#     start = axis_gates.starts[index]
-#     fin = axis_gates.fins[index]
-
-#     proportion = (gate_val - start) / (fin - start)
-#     return calculate_axis_gate_vals_from_proportion(axis_gates, proportion)
-
-
-# def calculate_axis_gate_vals_from_proportion(
-#     axis_gates, proportion
-# ) -> dict[str, float]:
-#     return {
-#         k: s + proportion * (f - s)
-#         for k, s, f in zip(axis_gates.channels, axis_gates.starts, axis_gates.fins)
-#     }
-
 
 
 ####################

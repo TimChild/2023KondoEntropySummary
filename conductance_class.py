@@ -1,4 +1,9 @@
 """
+2023-03-28 -- Tim: I don't think it's worth moving this into dat_analysis as it is... I think to make it more
+general, the centering/aligning should be handled separately to the Conductance fitting. I.e. ConductanceFitting
+should be done as subclass of GeneralFitter. Some things from here are probably worth using as inspiration for a
+future function
+
 Class for dealing with 2D conductance data (i.e. aligning based on peaks to find average)
 """
 from __future__ import annotations
@@ -9,7 +14,7 @@ from lmfit.models import LinearModel, LorentzianModel
 
 from dat_analysis.analysis_tools.general_fitting import FitInfo
 import dat_analysis.useful_functions as U
-from dat_analysis.plotting.plotly.util import heatmap, figures_to_subplots
+from dat_analysis.plotting.plotly.util import heatmap, figures_to_subplots, default_fig, error_fill
 
 from new_util import Data, PlottingInfo
 

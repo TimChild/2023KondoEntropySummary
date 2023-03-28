@@ -27,7 +27,7 @@ import datetime
 from dat_analysis.dat.dat_hdf import DatHDF 
 from dat_analysis.dat.logs_attr import Logs
 from dat_analysis.plotting.plotly.util import default_fig, heatmap, error_fill, figures_to_subplots, fig_waterfall, limit_max_datasize
-from dat_analysis.useful_functions import get_matching_x, bin_data, decimate, center_data, mean_data, resample_data, get_data_index, ensure_list
+from dat_analysis.core_util import get_matching_x, bin_data, decimate, center_data, mean_data, resample_data, get_data_index, ensure_list
 from dat_analysis.analysis_tools.data_aligning import subtract_data, subtract_data_1d
 from dat_analysis.hdf_util import NotFoundInHdfError
 
