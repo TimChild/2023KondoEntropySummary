@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 import plotly.graph_objects as go
 import plotly.colors as pc
 import numpy as np
@@ -12,7 +12,7 @@ from dataclasses import field, dataclass, InitVar
 
 
 from dat_analysis.analysis_tools import nrg
-from dat_analysis.analysis_tools.general_fitting import calculate_fit
+from dat_analysis.analysis_tools.general_fitting import calculate_fit, separate_simultaneous_params, FitInfo
 from dat_analysis.useful_functions import ensure_list
 from dat_analysis.plotting.plotly.util import default_fig
 from new_util import InterlacedData, Data, PlottingInfo, FitResult, are_params_equal, SimultaneousFitResult
