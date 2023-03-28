@@ -16,7 +16,7 @@ from typing import Callable, Iterable
 import numbers
 import os
 import lmfit as lm
-from progressbar import progressbar
+# from progressbar import progressbar  # Use tqdm instead
 from concurrent.futures import ThreadPoolExecutor
 import json
 from dataclasses import dataclass
