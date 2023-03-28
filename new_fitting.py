@@ -1,3 +1,6 @@
+"""
+2023-03-28 -- All useful functions moved to dat_analysis (and imported here for backwards-compatability)
+"""
 from __future__ import annotations
 from typing import Callable, Iterable, Optional, Union
 import plotly.graph_objects as go

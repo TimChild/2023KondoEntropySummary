@@ -1,3 +1,11 @@
+"""
+2023-03-28 -- All useful functions moved to dat_analysis (and imported here for backwards-compatability)
+
+2023-03-28 -- Note: the remaining classes and functions in here have already been mostly superseded by more
+general functions that can now be found in dat_analysis.analysis_tools.nrg. Some of the combined conductance/charge
+stuff here is unique to this file, but if we want to use it again, it should be re-written with some more thought put
+into keeping it general.
+"""
 from __future__ import annotations
 from dataclasses import dataclass
 import lmfit as lm

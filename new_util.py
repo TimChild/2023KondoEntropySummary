@@ -1,6 +1,8 @@
 """For any general utility functions created during this experiment
 
 Intention is to put these all into the dat_analysis package at the end of the CD
+
+2023-03-28 -- All useful functions moved to dat_analysis (and imported here for backwards-compatability)
 """
 from __future__ import annotations
 from dataclasses import dataclass, field, InitVar
