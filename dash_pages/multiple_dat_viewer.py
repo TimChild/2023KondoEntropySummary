@@ -5,17 +5,29 @@ from dictor import dictor
 import textwrap
 import dash
 import logging
+from pathlib import Path
+import sys
 
 import dat_analysis.dash.util as du
 from dat_analysis.dash.util import Components as C, make_app
 from dat_analysis.plotting.plotly.util import figures_to_subplots, default_fig
 
+sys.path.append(
+    str(Path(__file__).parent.parent.resolve())
+)  # So that default_import can be found
 from default_import import get_dat
 
 if TYPE_CHECKING:
     from dat_analysis.dat.dat_hdf import DatHDF
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(funcName)s:%(message)s")
+
+######## App Running Setup  ##########
+title = "Multiple Dat Viewer"
+port = 9100  # None will automatically choose a free port (it will change each time)
+debug = True
+hot_reload = False
+######################################
 
 
 def single_dat_general_info(dat: DatHDF) -> dict:
@@ -291,9 +303,9 @@ layout = du.make_layout_section(stores=stores, inputs=inputs, outputs=outputs)
 
 # Make app and attach callbacks (Note: cannot re-run callbacks with existing app)
 app.layout = layout
-app.title = "Multiple Dat Viewer"
 
-# Run the app
-port = 9100
-port = port if port else du.get_unused_port()
-app.run(port=port, debug=True, dev_tools_hot_reload=True)
+if __name__ == "__main__":
+    # Run the app
+    app.title = title
+    port = port if port else du.get_unused_port()
+    app.run(port=port, debug=debug, dev_tools_hot_reload=hot_reload)
