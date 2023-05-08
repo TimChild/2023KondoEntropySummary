@@ -21,13 +21,12 @@ from scipy.interpolate import interp1d
 
 from dat_analysis.analysis_tools.general_fitting import FitInfo, calculate_fit
 from dat_analysis.analysis_tools import nrg
+from dat_analysis.core_util import _NOT_SET
 import dat_analysis.useful_functions as U
 from dat_analysis.plotting.plotly.util import default_fig, heatmap, figures_to_subplots, default_layout, error_fill
 from new_util import Data, PlottingInfo, are_params_equal
 from peak_fitting import PeakFitting
 
-
-_NOT_SET = object()
 
 
 def simple_quadratic(x, quad):

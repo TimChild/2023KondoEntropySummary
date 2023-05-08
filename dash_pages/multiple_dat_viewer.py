@@ -249,7 +249,7 @@ def update_2d_graphs_div(dats_dict):
                 data_figs[k] = []
             data = dat.get_Data(k)
             if data.data.ndim == 2:
-                fig = data.plot(limit_datapoints=False)
+                fig = data.plot(resample=False)
                 data_figs[k].append(fig)
 
     graphs = []

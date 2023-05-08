@@ -40,6 +40,6 @@ from dat_analysis.analysis_tools.nrg import (
     NRGConductanceFitter,
     NRGChargeSimultaneousFitter,
     NRGConductanceSimultaneousFitter,
-    NRGEntropySignalFitter,
+    NRGEntropyFitter,
     _simple_quadratic as simple_quadratic,
 )

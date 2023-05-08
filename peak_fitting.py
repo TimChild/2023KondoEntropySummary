@@ -12,11 +12,9 @@ import numpy as np
 import lmfit as lm
 import logging 
 
-from dat_analysis.core_util import get_data_index
+from dat_analysis.core_util import get_data_index, _NOT_SET
 from new_util import are_params_equal
 from dat_analysis.plotting.plotly.util import default_fig, heatmap 
-
-_NOT_SET = object()
 
 
 class PeakFitting:
